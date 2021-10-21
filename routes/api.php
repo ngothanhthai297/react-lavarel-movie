@@ -19,3 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('list-user','UserController');
+Route::apiResource('list-favorite','FavoriteController');

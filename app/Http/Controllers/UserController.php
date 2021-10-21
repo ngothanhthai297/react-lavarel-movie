@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use SebastianBergmann\Environment\Console;
 
 class UserController extends Controller
 {
@@ -34,12 +36,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validate = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string'
         ]);
-
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => 'Created user Error! Please Try Again'
+            ], 400);
+        }
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
@@ -59,7 +65,11 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return response()->json([
+            'data' => $user,
+            'status' => 200
+        ], 200);
     }
 
     /**
@@ -70,7 +80,6 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
     }
 
     /**
@@ -82,7 +91,23 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $validate = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => 'Created user Error! Please Try Again'
+            ], 400);
+        }
+
+        $user->update($request->all());
+
+        return response()->json([
+            'message' => 'Successfully update user!'
+        ], 201);
     }
 
     /**
@@ -95,7 +120,6 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
-        //204 No content
-        return response()->json(['message' => 'Successfully created user!', 201]);
+        return response()->json(['message' => 'Successfully created user!', 'status' => 200], 200);
     }
 }
